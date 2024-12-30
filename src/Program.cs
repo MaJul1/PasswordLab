@@ -26,6 +26,10 @@ class Program
         {
             ConsoleWriterService.WriteError(e.Message);
         }
+        catch (UnauthorizedAccessException e)
+        {
+            ConsoleWriterService.WriteError(e.Message);
+        }
     }
 
     private static void ParseCommands(string[] args)

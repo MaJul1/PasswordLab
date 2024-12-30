@@ -3,53 +3,46 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 using PasswordLab.Sample;
+using PasswordLab.src;
 
 namespace PasswordLab;
 
 public class EncryptionService
 {
-    public static readonly string EncryptedFileExtension = "gz";
     public static void Encrypt(EncryptOptions options)
     {
-        Console.WriteLine("Starting Encryption");
-        var files = new List<PathInfo>();
+        var files = GetFilePathDetails(options.FilePaths);
 
-        Console.WriteLine("Scanning File Paths");
-        foreach(var path in options.FilePaths)
+        var encryptedFiles = EncryptFiles(files, options.Password);
+
+        FileOutputService.CompressAndSaveSecureFiles(encryptedFiles, options.OutputFileName, options.OutputPath);
+    }
+
+    private static List<FilePathDetails> GetFilePathDetails(IEnumerable<string> paths)
+    {
+        var filePathDetails = new List<FilePathDetails>();
+
+        foreach(var path in paths)
         {
-            Console.WriteLine("Scanning " + path);
-            files.AddRange(GetAllFilesByPath(path));
+            filePathDetails.AddRange(PathService.GetFilePathDetails(path));
         }
 
-        Console.WriteLine($"Found {files.Count} files to encrypt.");
-        Console.WriteLine("Encrypting files.");
+        return filePathDetails;
+    }
+    
+    private static List<SecureFileData> EncryptFiles(List<FilePathDetails> files, string password)
+    {
         var encryptedFiles = new List<SecureFileData>();
 
         foreach(var file in files)
         {
-            Console.WriteLine($"Encrypting {file.FullPath}");
-            encryptedFiles.Add(EncryptFileByPath(file, options.Password));
+            encryptedFiles.Add(EncryptFileByPath(file, password));
         }
-        Console.WriteLine("Encrypting all files done.");
 
-        CompressAndExportEncryptedFiles(encryptedFiles, options);
-        Console.WriteLine("Encryption Finished.");
+        return encryptedFiles;
     }
 
-    private static void CompressAndExportEncryptedFiles(List<SecureFileData> encryptedFiles, EncryptOptions options)
-    {
-        var outputPath = options.OutputPath != null ? 
-            $@"{options.OutputPath}\{options.OutputFileName}.{EncryptedFileExtension}" : 
-            $@"{Directory.GetCurrentDirectory()}\{options.OutputFileName}.{EncryptedFileExtension}";
-        
-        Console.WriteLine($"Exporting file to {outputPath}");
-
-        var json = JsonSerializer.Serialize(encryptedFiles);
-        GZipService.CompressStringToFile(json, outputPath);
-
-    }
-
-    private static SecureFileData EncryptFileByPath(PathInfo pathInfo, string password)
+    private static SecureFileData EncryptFileByPath(FilePathDetails pathInfo, string password)
     {
         var fileBytes = File.ReadAllBytes(pathInfo.FullPath);
 
@@ -61,7 +54,7 @@ public class EncryptionService
 
         SecureFileData encryptedFile = new()
         {
-            FilePath = pathInfo.GetPath(),
+            FilePath = pathInfo.ExtractRelativePath(),
             IV = Iv,
             EncryptedFile = encryptedBytes
         };
@@ -69,57 +62,5 @@ public class EncryptionService
         return encryptedFile;
     }
 
-    private static PathInfo[] GetAllFilesByPath(string path)
-    {
-        var isDirectory = Directory.Exists(path);
 
-        var isFile = File.Exists(path);
-
-        if(isDirectory)
-        {
-            return GetAllFilesInDirectory(path);
-        }
-        else if (isFile)
-        {
-            return [GetFilePathInfoByPath(path, GetIndexOfLastDirectory(path))];
-        }
-
-        throw new ArgumentException("{path} cannot be found", path);
-    }
-
-    private static int GetIndexOfLastDirectory(string path)
-    {
-        var array = path.Split(Path.DirectorySeparatorChar);
-
-        return array.Length - 1;
-    }
-
-    private static PathInfo[] GetAllFilesInDirectory(string path)
-    {
-        var filesPathInfos = new List<PathInfo>();
-        
-        var fullFilePath = Path.GetFullPath(path);
-
-        var filePaths = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
-
-        var rootDirectoryDepth = GetIndexOfLastDirectory(fullFilePath);
-
-        foreach(var filePath in filePaths)
-        {
-            filesPathInfos.Add(GetFilePathInfoByPath(filePath, rootDirectoryDepth));
-        }
-
-        return [.. filesPathInfos];
-    }
-
-    private static PathInfo GetFilePathInfoByPath(string filePath, int rootDirectoryDepth)
-    {
-        var fullFilePath = Path.GetFullPath(filePath);
-
-        return new PathInfo()
-        {
-            FullPath = fullFilePath,
-            DirectoryRootDepth = rootDirectoryDepth
-        };
-    }
 }

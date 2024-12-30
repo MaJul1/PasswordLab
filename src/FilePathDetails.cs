@@ -2,16 +2,16 @@ using System;
 
 namespace PasswordLab;
 
-public class PathInfo
+public class FilePathDetails
 {
     public string FullPath {get; set;} = null!;
-    public int DirectoryRootDepth {get; set;}
+    public int CommonAncestorDepth {get; set;}
 
-    public string GetPath()
+    public string ExtractRelativePath()
     {
         var array = FullPath.Split(Path.DirectorySeparatorChar);
 
-        var trimed = array.Skip(DirectoryRootDepth);
+        var trimed = array.Skip(CommonAncestorDepth);
 
         return string.Join(Path.DirectorySeparatorChar, trimed);
     }
