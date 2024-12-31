@@ -25,7 +25,7 @@ PasswordLab is a command-line tool for encrypting and decrypting files using AES
 
 1. Install via nuget.org
 ```sh 
-dotnet tool install --global PasswordLab --version 1.0.1
+dotnet tool install --global PasswordLab --version "version"
 ```
 
 ## Usage
