@@ -2,7 +2,7 @@ using System;
 
 namespace PasswordLab;
 
-public class SecureFileData
+public class EncryptedFileData
 {
     public string FilePath {get; set;} = null!;
     public byte[] IV {get; set;} = [];

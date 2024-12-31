@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using PasswordLab.Sample;
+using PasswordLab.src;
 
 namespace PasswordLab;
 
@@ -8,50 +9,41 @@ public class DecryptionService
 {
     public static void Decrypt(DecryptOptions options)
     {
-        Console.WriteLine("Starting Decryption.");
+        Console.WriteLine("Starting Decryption");
 
-        Console.WriteLine($"Decompressing {options.FilePath}");
-        var json = GZipService.DecompressFileToString(options.FilePath);
+        var encryptedFiles = IOService.LoadEncryptedFileData(options.FilePath);
 
-        Console.WriteLine("Deserializing Json");
-        var securefiles = JsonSerializer.Deserialize<List<SecureFileData>>(json);
-        
-        Console.WriteLine("Hashing the Password");
         var hashedPassword = HashingService.ConvertStringTo256Bits(options.Password);
 
         var output = options.OutputPath ?? Directory.GetCurrentDirectory();
 
-        foreach (var securefile in securefiles!)
+        DecryptEncryptedFiles(encryptedFiles, hashedPassword, output);
+
+        Console.WriteLine("Decryption Finished");
+    }
+
+    private static void DecryptEncryptedFiles(List<EncryptedFileData> encryptedFiles, byte[] hashedPassword, string outputPath)
+    {
+        Console.WriteLine("Starting decryption.");
+
+        foreach (var securefile in encryptedFiles!)
         {
-            Console.WriteLine($"Decrypting {securefile.FilePath}");
-            var outputDirectory = $@"{output}\{securefile.FilePath}";
-
-            while (File.Exists(outputDirectory))
-            {
-                var split = outputDirectory.Split(".");
-                var name = split[0] + "Copy";
-                var extension = split[1];
-                outputDirectory = string.Concat(name ,"." , extension);
-            }
-
-            var directories = outputDirectory.Split(Path.DirectorySeparatorChar);
-
-            string directoryPath = "";
-            for (int i = 0; i < directories.Length - 1; i++)
-            {
-                directoryPath += directories[i] + Path.AltDirectorySeparatorChar;
-            }
-
-            if (Directory.Exists(directoryPath) == false)
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            var fileBytes = AesService.DecryptBytes_Aes(securefile.EncryptedFile, hashedPassword, securefile.IV);
-
-            File.WriteAllBytes(outputDirectory, fileBytes);
+            DecryptEncryptedFile(securefile, hashedPassword, outputPath);
         }
+    }
 
-        Console.WriteLine("Decryption finished.");
+    private static void DecryptEncryptedFile(EncryptedFileData securefile, byte[] hashedPassword, string outputPath)
+    {
+        var outputFilePath = $@"{outputPath}\{securefile.FilePath}";
+     
+        Console.WriteLine($"Decrypting {outputFilePath}");
+
+        outputFilePath = PathService.ChangeNameIfFilePathExists(outputFilePath);
+
+        PathService.CreateDirectoriesIfNotExits(outputFilePath);
+
+        var decryptedFile = AesService.DecryptBytes_Aes(securefile.EncryptedFile, hashedPassword, securefile.IV);
+
+        File.WriteAllBytes(outputFilePath, decryptedFile);
     }
 }

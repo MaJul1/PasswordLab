@@ -22,6 +22,47 @@ public class PathService
         throw new ArgumentException("{path} cannot be found", path);
     }
 
+    public static string ChangeNameIfFilePathExists(string path)
+    {
+        var newPathName = path;
+
+        while (File.Exists(path))
+        {
+            var split = path.Split(".");
+            var name = split[0] + "Copy";
+            var extension = split[1];
+            newPathName = string.Concat(name, ".", extension);
+        }
+
+        return newPathName;
+    }
+
+    public static void CreateDirectoriesIfNotExits(string path)
+    {
+        path = RemoveLastPathComponent(path);
+
+        if (Directory.Exists(path) == false)
+        {
+            Directory.CreateDirectory(path);
+        }
+    }
+
+    private static string RemoveLastPathComponent(string path)
+    {
+        var split = path.Split(Path.DirectorySeparatorChar);
+
+        List<string> newSplitPath = [];
+
+        for (int i = 0; i < split.Length - 1; i++)
+        {
+            newSplitPath.Add(split[i]);
+        }
+
+        var newPath = string.Join(Path.DirectorySeparatorChar, newSplitPath);
+
+        return newPath;
+    }
+
     private static FilePathDetails[] CollectFileDetailsFromDirectory(string path)
     {
         var filePathDetails = new List<FilePathDetails>();
@@ -56,6 +97,18 @@ public class PathService
             FullPath = fullFilePath,
             CommonAncestorDepth = rootDirectoryDepth
         };
+    }
+
+    private static bool IsPathAFile(string path)
+    {
+        var split = path.Split(Path.DirectorySeparatorChar);
+
+        if (split[^1].Contains('.'))
+        {
+            return true;
+        }
+
+        return false;
     }
 
 }

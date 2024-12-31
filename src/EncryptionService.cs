@@ -11,15 +11,21 @@ public class EncryptionService
 {
     public static void Encrypt(EncryptOptions options)
     {
+        Console.WriteLine("Starting Encryption");
+
         var files = GetFilePathDetails(options.FilePaths);
 
         var encryptedFiles = EncryptFiles(files, options.Password);
 
-        FileOutputService.CompressAndSaveSecureFiles(encryptedFiles, options.OutputFileName, options.OutputPath);
+        IOService.CompressAndSaveSecureFiles(encryptedFiles, options.OutputFileName, options.OutputPath);
+
+        Console.WriteLine("Finished Encryption");
     }
 
     private static List<FilePathDetails> GetFilePathDetails(IEnumerable<string> paths)
     {
+        Console.WriteLine("Scanning Files");
+
         var filePathDetails = new List<FilePathDetails>();
 
         foreach(var path in paths)
@@ -27,23 +33,33 @@ public class EncryptionService
             filePathDetails.AddRange(PathService.GetFilePathDetails(path));
         }
 
+        Console.WriteLine($"Found {filePathDetails.Count} files to encrypt. Press any key to continue...");
+
+        Console.ReadKey();
+
         return filePathDetails;
     }
     
-    private static List<SecureFileData> EncryptFiles(List<FilePathDetails> files, string password)
+    private static List<EncryptedFileData> EncryptFiles(List<FilePathDetails> files, string password)
     {
-        var encryptedFiles = new List<SecureFileData>();
+        Console.WriteLine("Encrypting files.");
+
+        var encryptedFiles = new List<EncryptedFileData>();
 
         foreach(var file in files)
         {
             encryptedFiles.Add(EncryptFileByPath(file, password));
         }
 
+        Console.WriteLine("Encryption finished.");
+
         return encryptedFiles;
     }
 
-    private static SecureFileData EncryptFileByPath(FilePathDetails pathInfo, string password)
+    private static EncryptedFileData EncryptFileByPath(FilePathDetails pathInfo, string password)
     {
+        Console.WriteLine($"Encrypting {pathInfo.FullPath}");
+
         var fileBytes = File.ReadAllBytes(pathInfo.FullPath);
 
         var Iv = AesService.GenerageIV();
@@ -52,7 +68,7 @@ public class EncryptionService
 
         var encryptedBytes = AesService.EncryptBytes_Aes(fileBytes, hashedPassword, Iv);
 
-        SecureFileData encryptedFile = new()
+        EncryptedFileData encryptedFile = new()
         {
             FilePath = pathInfo.ExtractRelativePath(),
             IV = Iv,
