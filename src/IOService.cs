@@ -20,7 +20,7 @@ public class IOService
 
     public static List<EncryptedFileData> LoadEncryptedFileData(string path)
     {
-        Console.WriteLine($"Loading {path} for encryption.");
+        Console.WriteLine($"Loading {path} for decryption.");
 
         var json = GZipService.DecompressFileToString(path);
 
