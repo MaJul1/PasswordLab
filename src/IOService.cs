@@ -26,7 +26,7 @@ public class IOService
 
         var securefiles = JsonSerializer.Deserialize<List<EncryptedFileData>>(json) ?? [];
 
-        Console.WriteLine($"Found {securefiles.Count} files to decrypt. Press any key to continue...");
+        Console.WriteLine($"Found {securefiles.Count} files in {path} and ready to decrypt. Press any key to continue...");
         Console.ReadKey();
         
         return securefiles;
