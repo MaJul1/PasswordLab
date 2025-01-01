@@ -18,17 +18,9 @@ class Program
         {
             ConsoleWriterService.WriteError($"'{e.FileName}' cannot be found");
         }
-        catch (ArgumentException e)
+        catch (Exception e)
         {
-            ConsoleWriterService.WriteError(e.Message);
-        }
-        catch (InvalidDataException e)
-        {
-            ConsoleWriterService.WriteError(e.Message);
-        }
-        catch (UnauthorizedAccessException e)
-        {
-            ConsoleWriterService.WriteError(e.Message);
+            Console.WriteLine(e.Message);
         }
     }
 
