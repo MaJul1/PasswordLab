@@ -1,9 +1,13 @@
+#define MyAppName "PasswordLab"
+#define MyAppVersion "1.2.0"
+#define MyAppExeName "PasswordLab.exe"
+
 [Setup]
-AppName=PasswordLab
-AppVersion=1.1.0
-DefaultDirName={pf}\PasswordLab
-DefaultGroupName=PasswordLab
-OutputBaseFilename=PasswordLabInstaller
+AppName={#MyAppName}
+AppVersion={#MyAppVersion}
+DefaultDirName={pf}\{#MyAppName}
+DefaultGroupName={#MyAppName}
+OutputBaseFilename={#MyAppName}Installer
 Compression=lzma
 SolidCompression=yes
 
@@ -11,4 +15,4 @@ SolidCompression=yes
 Source: "bin\Release\net8.0\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\PasswordLab"; Filename: "{app}\PasswordLab.exe"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
