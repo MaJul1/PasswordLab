@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using CommandLine;
 
 namespace PasswordLab;

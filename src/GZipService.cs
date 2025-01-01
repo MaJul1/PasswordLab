@@ -1,8 +1,7 @@
-using System;
 using System.IO.Compression;
 using System.Text;
 
-namespace PasswordLab.Sample;
+namespace PasswordLab;
 
 public class GZipService
 {

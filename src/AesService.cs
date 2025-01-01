@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
 
+namespace PasswordLab;
+
 public static class AesService
 {
     public static byte[] EncryptBytes_Aes(byte[] plainBytes, byte[] Key, byte[] IV)

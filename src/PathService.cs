@@ -1,6 +1,6 @@
 using System;
 
-namespace PasswordLab.src;
+namespace PasswordLab;
 
 public class PathService
 {

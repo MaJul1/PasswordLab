@@ -1,5 +1,3 @@
-using System;
-
 namespace PasswordLab;
 
 public class ConsoleWriterService
