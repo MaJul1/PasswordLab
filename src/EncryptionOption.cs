@@ -5,7 +5,7 @@ namespace PasswordLab;
 [Verb("encrypt", HelpText = "Encrypt a file.")]
 public class EncryptOptions
 {
-    [Option('f', "file", Required = true, HelpText ="File path/s of the files to encrypt.")]
+    [Value(0, Required = true, HelpText ="File path/s of the files to encrypt.")]
     public IEnumerable<string> FilePaths {get; set;} = null!;
 
     [Option('o', "output", Required = false, HelpText = "Output file path, current directory is default.")]
