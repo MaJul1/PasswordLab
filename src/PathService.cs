@@ -26,7 +26,7 @@ public class PathService
     {
         var newPathName = path;
 
-        while (File.Exists(path))
+        while (File.Exists(newPathName))
         {
             var split = path.Split(".");
             var name = split[0] + "Copy";

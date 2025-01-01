@@ -20,13 +20,13 @@ public class IOService
 
     public static List<EncryptedFileData> LoadEncryptedFileData(string path)
     {
-        Console.WriteLine($"Loading {path} for encryption.");
+        Console.WriteLine($"Loading {path} for decryption.");
 
         var json = GZipService.DecompressFileToString(path);
 
         var securefiles = JsonSerializer.Deserialize<List<EncryptedFileData>>(json) ?? [];
 
-        Console.WriteLine($"Found {securefiles.Count} files to encrypt. Press any key to continue...");
+        Console.WriteLine($"Found {securefiles.Count} files to decrypt. Press any key to continue...");
         Console.ReadKey();
         
         return securefiles;
