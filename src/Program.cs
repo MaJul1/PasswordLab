@@ -1,6 +1,7 @@
 ﻿using PasswordLab;
 using CommandLine;
 using System.Security.Cryptography;
+using System.Reflection;
 
 class Program
 {
@@ -26,10 +27,28 @@ class Program
 
     private static void ParseCommands(string[] args)
     {
+        if (IsArgsInvokedVersionCommand(args))
+        {
+            Console.WriteLine(GetCurrentVersion());
+            return;
+        }
+
         Parser.Default.ParseArguments<EncryptOptions, DecryptOptions>(args)
         .MapResult( (EncryptOptions opts) => RunEncryptAndReturnExitCode(opts),
                     (DecryptOptions opts) => DecryptAndReturnExitCode(opts),
                     errs => 1 );
+    }
+
+    private static bool IsArgsInvokedVersionCommand(string[] args)
+    {
+        return args.Contains("--version") || args.Contains("version");
+    }
+
+    private static string GetCurrentVersion()
+    {
+        var versionAttribute = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        return versionAttribute?.InformationalVersion.Split('+')[0] ?? "1.0.0";
     }
 
     private static int DecryptAndReturnExitCode(DecryptOptions opts)
