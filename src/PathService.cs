@@ -22,19 +22,56 @@ public class PathService
         throw new ArgumentException("{path} cannot be found", path);
     }
 
-    public static string ChangeNameIfFilePathExists(string path)
+    public static string GetUniqueFilePath(string path)
     {
         var newPathName = path;
 
-        while (File.Exists(path))
+        while (File.Exists(newPathName))
         {
-            var split = path.Split(".");
-            var name = split[0] + "Copy";
-            var extension = split[1];
-            newPathName = string.Concat(name, ".", extension);
+            newPathName = AppendCopySuffixToFileName(newPathName);
         }
 
         return newPathName;
+    }
+
+    private static string AppendCopySuffixToFileName(string path)
+    {
+        bool hasExtension = GetLastPathComponent(path).Contains('.');
+        if (hasExtension)
+        {
+            return AppendCopyForFileWithExtension(path);
+        }
+        else
+        {
+            return AppendCopyForFileWithoutExtension(path);
+        }
+    }
+
+    private static string AppendCopyForFileWithoutExtension(string path)
+    {
+        return path + "Copy";
+    }
+
+    private static string AppendCopyForFileWithExtension(string path)
+    {
+            var lastComponent = GetLastPathComponent(path);
+
+            var split = lastComponent.Split(".");
+
+            var name = split[0] + "Copy";
+
+            var newFileName = string.Join('.', name, split[1]);
+
+            var trimmedPath = RemoveLastPathComponent(path);
+
+            return string.Join(Path.DirectorySeparatorChar, trimmedPath, newFileName);
+    }
+
+    private static string GetLastPathComponent(string path)
+    {
+        var splitPaths = path.Split(Path.DirectorySeparatorChar);
+
+        return splitPaths[^1];
     }
 
     public static void CreateDirectoriesIfNotExits(string path)

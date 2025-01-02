@@ -1,6 +1,7 @@
 ﻿using PasswordLab;
 using CommandLine;
 using System.Security.Cryptography;
+using System.Reflection;
 
 class Program
 {
@@ -18,26 +19,36 @@ class Program
         {
             ConsoleWriterService.WriteError($"'{e.FileName}' cannot be found");
         }
-        catch (ArgumentException e)
+        catch (Exception e)
         {
-            ConsoleWriterService.WriteError(e.Message);
-        }
-        catch (InvalidDataException e)
-        {
-            ConsoleWriterService.WriteError(e.Message);
-        }
-        catch (UnauthorizedAccessException e)
-        {
-            ConsoleWriterService.WriteError(e.Message);
+            Console.WriteLine(e.Message);
         }
     }
 
     private static void ParseCommands(string[] args)
     {
+        if (IsArgsInvokedVersionCommand(args))
+        {
+            Console.WriteLine(GetCurrentVersion());
+            return;
+        }
+
         Parser.Default.ParseArguments<EncryptOptions, DecryptOptions>(args)
         .MapResult( (EncryptOptions opts) => RunEncryptAndReturnExitCode(opts),
                     (DecryptOptions opts) => DecryptAndReturnExitCode(opts),
                     errs => 1 );
+    }
+
+    private static bool IsArgsInvokedVersionCommand(string[] args)
+    {
+        return args.Contains("--version") || args.Contains("version");
+    }
+
+    private static string GetCurrentVersion()
+    {
+        var versionAttribute = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        return versionAttribute?.InformationalVersion.Split('+')[0] ?? "1.0.0";
     }
 
     private static int DecryptAndReturnExitCode(DecryptOptions opts)

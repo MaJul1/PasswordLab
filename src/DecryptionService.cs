@@ -33,7 +33,7 @@ public class DecryptionService
      
         Console.WriteLine($"Decrypting {outputFilePath}");
 
-        outputFilePath = PathService.ChangeNameIfFilePathExists(outputFilePath);
+        outputFilePath = PathService.GetUniqueFilePath(outputFilePath);
 
         PathService.CreateDirectoriesIfNotExits(outputFilePath);
 
